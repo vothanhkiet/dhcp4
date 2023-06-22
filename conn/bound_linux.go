@@ -1,4 +1,4 @@
-// +build linux, niac
+// +build linux
 
 package conn
 
