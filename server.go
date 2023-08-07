@@ -23,8 +23,6 @@ type ServeConn interface {
 //
 // Every packet is passed to the Handler's ServeDHCP func.
 //
-//
-//
 // which processes it and optionally return a response packet for writing back
 // to the network.
 //
@@ -36,9 +34,15 @@ type ServeConn interface {
 // Additionally, response packets may not return to the same
 // interface that the request was received from.  Writing a custom ServeConn,
 // or using ServeIf() can provide a workaround to this problem.
-func Serve(conn ServeConn, handler Handler) error {
+func Serve(conn ServeConn, handler Handler, quitChannel chan bool) error {
 	buffer := make([]byte, 1500)
 	for {
+		select {
+		case <-quitChannel:
+			return nil
+		default:
+		}
+
 		n, addr, err := conn.ReadFrom(buffer)
 		if err != nil {
 			return err
