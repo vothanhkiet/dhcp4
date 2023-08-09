@@ -84,11 +84,11 @@ func Serve(conn ServeConn, handler Handler, quitChannel chan bool) error {
 
 // ListenAndServe listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
-func ListenAndServe(handler Handler) error {
+func ListenAndServe(handler Handler, quitChannel chan bool) error {
 	l, err := net.ListenPacket("udp4", ":67")
 	if err != nil {
 		return err
 	}
 	defer l.Close()
-	return Serve(l, handler)
+	return Serve(l, handler, quitChannel)
 }
