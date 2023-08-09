@@ -24,5 +24,5 @@ func ListenAndServeIf(interfaceName string, handler Handler, quitChannel chan bo
 		return err
 	}
 	defer l.Close()
-	return Serve(l, handler)
+	return Serve(l, handler, quitChannel)
 }
