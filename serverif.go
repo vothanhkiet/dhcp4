@@ -9,16 +9,16 @@ import (
 )
 
 // Deprecated, use Serve instead with connection from dhcp4/conn or own custom creation
-func ServeIf(ifIndex int, pconn net.PacketConn, handler Handler) error {
+func ServeIf(ifIndex int, pconn net.PacketConn, handler Handler, quitChannel chan bool) error {
 	p := ipv4.NewPacketConn(pconn)
 	if err := p.SetControlMessage(ipv4.FlagInterface, true); err != nil {
 		return err
 	}
-	return Serve(conn.NewServeIf(ifIndex, p), handler)
+	return Serve(conn.NewServeIf(ifIndex, p), handler, quitChannel)
 }
 
 // Deprecated, use Serve instead with connection from dhcp4/conn or own custom creation
-func ListenAndServeIf(interfaceName string, handler Handler) error {
+func ListenAndServeIf(interfaceName string, handler Handler, quitChannel chan bool) error {
 	l, err := conn.NewUDP4FilterListener(interfaceName, ":67")
 	if err != nil {
 		return err
