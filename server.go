@@ -1,6 +1,7 @@
 package dhcp4
 
 import (
+	"errors"
 	"net"
 	"strconv"
 )
@@ -39,7 +40,7 @@ func Serve(conn ServeConn, handler Handler, quitChannel chan bool) error {
 	for {
 		select {
 		case <-quitChannel:
-			return nil
+			return errors.New("Server stopped by channel signal")
 		default:
 		}
 
