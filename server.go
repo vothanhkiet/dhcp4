@@ -1,6 +1,7 @@
 package dhcp4
 
 import (
+	"errors"
 	"net"
 	"strconv"
 )
@@ -23,8 +24,6 @@ type ServeConn interface {
 //
 // Every packet is passed to the Handler's ServeDHCP func.
 //
-//
-//
 // which processes it and optionally return a response packet for writing back
 // to the network.
 //
@@ -36,9 +35,15 @@ type ServeConn interface {
 // Additionally, response packets may not return to the same
 // interface that the request was received from.  Writing a custom ServeConn,
 // or using ServeIf() can provide a workaround to this problem.
-func Serve(conn ServeConn, handler Handler) error {
+func Serve(conn ServeConn, handler Handler, quitChannel chan bool) error {
 	buffer := make([]byte, 1500)
 	for {
+		select {
+		case <-quitChannel:
+			return errors.New("Server stopped by channel signal")
+		default:
+		}
+
 		n, addr, err := conn.ReadFrom(buffer)
 		if err != nil {
 			return err
@@ -80,11 +85,11 @@ func Serve(conn ServeConn, handler Handler) error {
 
 // ListenAndServe listens on the UDP network address addr and then calls
 // Serve with handler to handle requests on incoming packets.
-func ListenAndServe(handler Handler) error {
+func ListenAndServe(handler Handler, quitChannel chan bool) error {
 	l, err := net.ListenPacket("udp4", ":67")
 	if err != nil {
 		return err
 	}
 	defer l.Close()
-	return Serve(l, handler)
+	return Serve(l, handler, quitChannel)
 }
